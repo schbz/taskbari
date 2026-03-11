@@ -1,0 +1,780 @@
+========================================================================
+[PURPOSE]
+========================================================================
+
+This file is for AI coding agents (Cursor, Copilot, Aider, etc.).
+Use it when a user asks you to:
+  - Set up .vscode/tasks.json with status bar task buttons
+  - Organize tasks into groups/categories on the status bar
+  - Migrate from an older task-button extension to TaskBari
+  - Add, remove, or reorganize status bar tasks in a workspace
+
+Read this file in full before making changes to any tasks.json.
+
+
+========================================================================
+[EXTENSION OVERVIEW]
+========================================================================
+
+TaskBari loads tasks defined in .vscode/tasks.json as clickable buttons
+on the VS Code / Cursor status bar (bottom of the window).
+
+Core capabilities:
+
+  1. INDIVIDUAL BUTTONS
+     Any task with an options.statusbar block (and no group) renders as
+     its own button on the status bar.
+
+  2. GROUP BUTTONS
+     Tasks that share the same group id collapse into ONE status bar
+     button. Clicking it opens a QuickPick popup listing all tasks in
+     that group.
+
+  3. DOT-NOTATION SUB-SECTIONS
+     Group ids like "Test.Unit" and "Test.E2E" both belong to the
+     root group "Test". Inside the QuickPick, tasks are divided into
+     labeled sub-sections ("Unit", "E2E") using separator lines.
+
+  4. RUNNING INDICATORS
+     When any task in a group is running, the group button shows an
+     animated spinner icon and a running/total count, e.g. (2/6).
+
+  5. RUN ALL IN GROUP
+     Every group QuickPick has a "Run all N tasks" option at the top
+     that executes every task in the group in parallel.
+
+  6. OVERFLOW HANDLING
+     The tasks.statusbar.limit setting caps visible buttons. Overflow
+     tasks go into a "..." picker. Groups count as 1 toward the limit.
+
+Backward compatibility: any tasks.json that worked with older
+task-button status bar extensions works unchanged with TaskBari.
+The only addition is the optional group property.
+
+
+========================================================================
+[CONFIGURATION REFERENCE]
+========================================================================
+
+--- Per-task: options.statusbar properties ---
+
+  label           string    Custom text for the button. Supports
+                            $(icon-name) codicon syntax.
+
+  icon            object    { "id": "codicon-name" } -- icon prepended
+                            to the label.
+
+  color           string    Foreground color. Hex ("#FF5555") or VS Code
+                            theme color name ("terminal.ansiRed").
+
+  backgroundColor string    Only supports:
+                            "statusBarItem.errorBackground"
+                            "statusBarItem.warningBackground"
+
+  detail          string    Tooltip text shown on hover (supports
+                            markdown and codicons).
+
+  hide            boolean   If true, the task is not shown on the bar.
+                            Default: false.
+
+  filePattern     string    Regex pattern. Button only visible when the
+                            active editor filename matches. Leave empty
+                            or omit to always show.
+
+  group           string    Group id. All tasks sharing this id collapse
+                  OR        into one button. Supports dot-notation for
+                  object    sub-sections (see [GROUP CONFIGURATION]).
+
+  running         object    Override label/icon/color/backgroundColor
+                            when the task is currently executing.
+                            Example:
+                            "running": {
+                              "label": "$(sync~spin) Building...",
+                              "color": "#F1FA8C"
+                            }
+
+--- settings.json: tasks.statusbar.* ---
+
+  tasks.statusbar.default.hide             boolean   false
+    Hide all tasks by default (opt-in per task via hide:false).
+
+  tasks.statusbar.default.color            string    ""
+    Default foreground color for all buttons.
+
+  tasks.statusbar.limit                    int|null  null
+    Max visible buttons. Overflow goes to "..." picker.
+
+  tasks.statusbar.select.label             string    "..."
+    Label for the overflow picker button.
+
+  tasks.statusbar.select.color             string    ""
+    Color for the overflow picker button.
+
+  tasks.statusbar.groups.showTaskCount     boolean   true
+    Show (N) count on group buttons, e.g. "Build (3)".
+
+  tasks.statusbar.groups.sortAlphabetically boolean  false
+    Sort items alphabetically inside group QuickPick menus.
+
+
+========================================================================
+[TASK ANATOMY TEMPLATE]
+========================================================================
+
+--- Ungrouped task (individual button) ---
+
+{
+  "label": "Lint All",
+  "type": "shell",
+  "command": "npm run lint",
+  "options": {
+    "statusbar": {
+      "label": "$(checklist) Lint",
+      "color": "#F5A623",
+      "detail": "Run ESLint on entire project"
+    }
+  }
+}
+
+--- Grouped task (simple string form) ---
+
+{
+  "label": "Test Unit",
+  "type": "shell",
+  "command": "npm test -- --unit",
+  "options": {
+    "statusbar": {
+      "group": "Test"
+    }
+  }
+}
+
+--- Grouped task (detailed object form, defines group appearance) ---
+
+{
+  "label": "Test Unit",
+  "type": "shell",
+  "command": "npm test -- --unit",
+  "options": {
+    "statusbar": {
+      "group": {
+        "id": "Test.Unit",
+        "label": "Test",
+        "icon": "beaker",
+        "color": "#50FA7B",
+        "priority": 5
+      }
+    }
+  }
+}
+
+--- Grouped task (subsequent task in same group, minimal) ---
+
+{
+  "label": "Test Integration",
+  "type": "shell",
+  "command": "npm test -- --integration",
+  "options": {
+    "statusbar": {
+      "group": "Test.Unit"
+    }
+  }
+}
+
+--- Task with running-state override ---
+
+{
+  "label": "Dev Server",
+  "type": "shell",
+  "command": "npm run dev",
+  "isBackground": true,
+  "options": {
+    "statusbar": {
+      "label": "$(play) Dev",
+      "color": "#50FA7B",
+      "running": {
+        "label": "$(sync~spin) Dev",
+        "color": "#F1FA8C"
+      }
+    }
+  }
+}
+
+--- Task with file-pattern filter ---
+
+{
+  "label": "Run Current Test",
+  "type": "shell",
+  "command": "npm test -- ${relativeFile}",
+  "options": {
+    "statusbar": {
+      "label": "$(play) Run Test",
+      "filePattern": "\\.(test|spec)\\.(ts|js)$"
+    }
+  }
+}
+
+
+========================================================================
+[GROUP CONFIGURATION RULES]
+========================================================================
+
+1. STRING FORM vs OBJECT FORM
+   Use the simple string when you just need grouping:
+     "group": "Build"
+   Use the object form on ONE task per group to define appearance:
+     "group": { "id": "Build", "label": "Build", "icon": "tools", ... }
+   All other tasks in the same group only need the string form.
+
+2. FIRST-WRITER-WINS
+   The first task (in file order) that uses the object form for a
+   group defines that group's label, icon, color, and priority.
+   Subsequent tasks using the object form for the same group are
+   ignored for appearance (their tasks still join the group).
+   Recommendation: put the "defining" task first in the array.
+
+3. DOT-NOTATION SUB-SECTIONS
+   Group ids containing a dot are split:
+     "Test.Unit"  ->  root group "Test", sub-section "Unit"
+     "Test.E2E"   ->  root group "Test", sub-section "E2E"
+   Both appear under one "Test" button. The QuickPick shows
+   separator headings for "Unit" and "E2E".
+   Tasks with "group": "Test" (no dot) go into a "General" section.
+
+4. PRIORITY ORDERING
+   Groups with higher priority numbers appear further LEFT on the
+   status bar. Groups with equal priority sort alphabetically.
+   Ungrouped buttons appear to the right of all groups.
+   Suggested scale: 10 = critical, 5 = frequent, 1 = rare.
+
+5. TASK COUNT BADGE
+   Group buttons show (N) by default, e.g. "Build (3)".
+   When tasks are running: "Build (1/3)" with a spinner icon.
+   Disable with tasks.statusbar.groups.showTaskCount: false.
+
+
+========================================================================
+[RECOMMENDED CATEGORY TAXONOMY]
+========================================================================
+
+Adapt these to the workspace. Only create groups that have 2+ tasks.
+Tasks that are one-offs should remain ungrouped for direct access.
+
+--- Web application (frontend + backend) ---
+
+  Group ID            Icon            Color     Priority
+  Build.Dev           tools           #8BE9FD   8
+  Build.Prod          tools           #8BE9FD   8
+  Test.Unit           beaker          #50FA7B   6
+  Test.E2E            beaker          #50FA7B   6
+  Deploy.Staging      cloud-upload    #FF5555   4
+  Deploy.Production   cloud-upload    #FF5555   4
+  Lint (ungrouped)    checklist       #F5A623   --
+  Format (ungrouped)  edit            #BD93F9   --
+  Dev Server (ungr.)  play            #50FA7B   --
+
+--- Backend API ---
+
+  Group ID            Icon            Color     Priority
+  Build               tools           #8BE9FD   8
+  Test.Unit           beaker          #50FA7B   6
+  Test.Integration    beaker          #50FA7B   6
+  DB.Migrate          database        #F1FA8C   4
+  DB.Seed             database        #F1FA8C   4
+  Deploy              cloud-upload    #FF5555   3
+  Lint (ungrouped)    checklist       #F5A623   --
+
+--- Monorepo ---
+
+  Group ID            Icon            Color     Priority
+  Build.Frontend      tools           #8BE9FD   8
+  Build.Backend       tools           #8BE9FD   8
+  Build.Shared        tools           #8BE9FD   8
+  Test.Frontend       beaker          #50FA7B   6
+  Test.Backend        beaker          #50FA7B   6
+  Deploy              cloud-upload    #FF5555   3
+  Infra               server          #BD93F9   2
+
+--- Data / ML project ---
+
+  Group ID            Icon            Color     Priority
+  Data.Ingest         cloud-download  #8BE9FD   7
+  Data.Transform      zap             #F1FA8C   7
+  Train               rocket          #FF79C6   5
+  Eval                graph           #50FA7B   4
+  Deploy              cloud-upload    #FF5555   3
+  Notebook (ungr.)    notebook        #BD93F9   --
+
+--- Commonly useful codicon icon names ---
+
+  tools         - build/compile tasks
+  beaker        - test tasks
+  cloud-upload  - deploy tasks
+  cloud-download- data fetch tasks
+  play          - run/start tasks
+  debug         - debug tasks
+  trash         - clean tasks
+  checklist     - lint tasks
+  edit          - format tasks
+  database      - database tasks
+  terminal      - shell/script tasks
+  server        - infrastructure tasks
+  rocket        - launch/train tasks
+  graph         - analytics/eval tasks
+  notebook      - notebook tasks
+  sync~spin     - animated spinner (use in "running" overrides)
+  run-all       - used internally for "run all" QuickPick item
+
+
+========================================================================
+[MIGRATION FROM OLDER TASK-BUTTON EXTENSIONS]
+========================================================================
+
+Older status bar task-button extensions use the same options.statusbar
+format but have NO group property. Migration is additive only -- no
+existing fields need to change.
+
+Step-by-step:
+
+1. READ the existing .vscode/tasks.json. All tasks with an
+   options.statusbar block are currently rendering as individual
+   status bar buttons.
+
+2. IDENTIFY clusters of related tasks. Look for common prefixes in
+   labels (e.g. "Build Debug", "Build Release") or similar command
+   patterns. These are candidates for groups.
+
+3. ADD a "group" property inside options.statusbar for each task you
+   want to group. Use the simple string form for all but one task
+   per group.
+
+4. PICK ONE task per group (ideally the first in file order) and use
+   the object form to define the group's label, icon, color, and
+   priority.
+
+5. DO NOT remove or rename any existing properties. The label, color,
+   detail, hide, filePattern, and running properties all still work
+   and control how the task appears inside the group QuickPick.
+
+6. LEAVE tasks that are unique/standalone as ungrouped. Do not force
+   single tasks into a group -- that adds an extra click for no
+   benefit.
+
+Example migration:
+
+  BEFORE (older extension, 4 individual buttons):
+
+  {
+    "label": "Build Debug",
+    "type": "shell",
+    "command": "make debug",
+    "options": {
+      "statusbar": {
+        "label": "$(tools) Debug",
+        "color": "#8BE9FD"
+      }
+    }
+  },
+  {
+    "label": "Build Release",
+    "type": "shell",
+    "command": "make release",
+    "options": {
+      "statusbar": {
+        "label": "$(tools) Release",
+        "color": "#8BE9FD"
+      }
+    }
+  },
+  {
+    "label": "Test All",
+    "type": "shell",
+    "command": "npm test",
+    "options": {
+      "statusbar": {
+        "label": "$(beaker) Test",
+        "color": "#50FA7B"
+      }
+    }
+  },
+  {
+    "label": "Lint",
+    "type": "shell",
+    "command": "npm run lint",
+    "options": {
+      "statusbar": {
+        "label": "$(checklist) Lint",
+        "color": "#F5A623"
+      }
+    }
+  }
+
+  AFTER (TaskBari, 3 buttons: Build group + Test + Lint):
+
+  {
+    "label": "Build Debug",
+    "type": "shell",
+    "command": "make debug",
+    "options": {
+      "statusbar": {
+        "label": "$(tools) Debug",
+        "color": "#8BE9FD",
+        "group": {
+          "id": "Build",
+          "label": "Build",
+          "icon": "tools",
+          "color": "#8BE9FD",
+          "priority": 8
+        }
+      }
+    }
+  },
+  {
+    "label": "Build Release",
+    "type": "shell",
+    "command": "make release",
+    "options": {
+      "statusbar": {
+        "label": "$(tools) Release",
+        "color": "#8BE9FD",
+        "group": "Build"
+      }
+    }
+  },
+  {
+    "label": "Test All",
+    "type": "shell",
+    "command": "npm test",
+    "options": {
+      "statusbar": {
+        "label": "$(beaker) Test",
+        "color": "#50FA7B"
+      }
+    }
+  },
+  {
+    "label": "Lint",
+    "type": "shell",
+    "command": "npm run lint",
+    "options": {
+      "statusbar": {
+        "label": "$(checklist) Lint",
+        "color": "#F5A623"
+      }
+    }
+  }
+
+  Result: "Build (2)" group button + "Test" button + "Lint" button.
+  The two Build tasks kept all their existing properties.
+
+
+========================================================================
+[BEST PRACTICES CHECKLIST]
+========================================================================
+
+DO:
+  - Keep button labels SHORT (1-3 words). Use codicons for visual
+    distinction instead of long text.
+  - Use "detail" for descriptive tooltip text that explains what the
+    task does. This shows on hover and in the group QuickPick.
+  - Group related tasks when you have 2 or more. Do NOT group a
+    single task alone.
+  - Use dot-notation sub-sections when a group has natural divisions
+    (e.g. Test.Unit vs Test.E2E, Deploy.Staging vs Deploy.Prod).
+  - Put the group-defining task (object form) FIRST in the tasks
+    array for that group.
+  - Use consistent color coding: same color for all tasks in a group
+    so the status bar looks cohesive.
+  - Use the "running" override to show visual feedback when long
+    tasks are executing (especially dev servers and watchers).
+  - Use "filePattern" for context-sensitive buttons that only matter
+    for certain file types (e.g. test runner only when a test file
+    is active).
+  - Set "priority" so the most-used groups are leftmost on the bar.
+
+DO NOT:
+  - Do not exceed 6-7 top-level items (groups + ungrouped buttons).
+    Use the tasks.statusbar.limit setting as a safety net.
+  - Do not put more than ~10 tasks in a single group. If you have
+    more, split into sub-sections with dot-notation.
+  - Do not use long hex color codes when a theme color name is more
+    readable (e.g. "terminal.ansiGreen" instead of "#50FA7B").
+  - Do not duplicate the label text in the detail -- use detail for
+    additional context not visible in the label.
+  - Do not set "hide": true and "group" on the same task. Hidden
+    tasks are excluded before grouping runs.
+  - Do not use the VS Code built-in "group" property (the one at
+    task root level, e.g. "group": "build") as a substitute. That
+    controls the Task Runner panel, NOT the status bar. The TaskBari
+    group goes INSIDE options.statusbar.group.
+
+
+========================================================================
+[FULL EXAMPLE TASKS.JSON]
+========================================================================
+
+This example covers a typical TypeScript/Node web project with
+frontend, backend, testing, deployment, and utility tasks.
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Frontend Dev",
+      "type": "shell",
+      "command": "npm run build:frontend:dev",
+      "options": {
+        "statusbar": {
+          "group": {
+            "id": "Build.Frontend",
+            "label": "Build",
+            "icon": "tools",
+            "color": "#8BE9FD",
+            "priority": 8
+          }
+        }
+      }
+    },
+    {
+      "label": "Build Frontend Prod",
+      "type": "shell",
+      "command": "npm run build:frontend:prod",
+      "options": {
+        "statusbar": {
+          "group": "Build.Frontend"
+        }
+      }
+    },
+    {
+      "label": "Build Backend",
+      "type": "shell",
+      "command": "npm run build:backend",
+      "options": {
+        "statusbar": {
+          "group": "Build.Backend"
+        }
+      }
+    },
+    {
+      "label": "Build All",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "statusbar": {
+          "group": "Build",
+          "detail": "Full project build (frontend + backend)"
+        }
+      }
+    },
+    {
+      "label": "Test Unit",
+      "type": "shell",
+      "command": "npm run test:unit",
+      "options": {
+        "statusbar": {
+          "group": {
+            "id": "Test.Unit",
+            "label": "Test",
+            "icon": "beaker",
+            "color": "#50FA7B",
+            "priority": 6
+          }
+        }
+      }
+    },
+    {
+      "label": "Test Unit Watch",
+      "type": "shell",
+      "command": "npm run test:unit -- --watch",
+      "isBackground": true,
+      "options": {
+        "statusbar": {
+          "group": "Test.Unit",
+          "detail": "Re-runs on file change"
+        }
+      }
+    },
+    {
+      "label": "Test Integration",
+      "type": "shell",
+      "command": "npm run test:integration",
+      "options": {
+        "statusbar": {
+          "group": "Test.Integration"
+        }
+      }
+    },
+    {
+      "label": "Test E2E",
+      "type": "shell",
+      "command": "npm run test:e2e",
+      "options": {
+        "statusbar": {
+          "group": "Test.E2E",
+          "detail": "Runs Playwright/Cypress E2E suite"
+        }
+      }
+    },
+    {
+      "label": "Test Coverage",
+      "type": "shell",
+      "command": "npm run test:coverage",
+      "options": {
+        "statusbar": {
+          "group": "Test.Unit",
+          "detail": "Generate coverage report"
+        }
+      }
+    },
+    {
+      "label": "Deploy Staging",
+      "type": "shell",
+      "command": "npm run deploy:staging",
+      "options": {
+        "statusbar": {
+          "group": {
+            "id": "Deploy.Environments",
+            "label": "Deploy",
+            "icon": "cloud-upload",
+            "color": "#FF5555",
+            "priority": 3
+          },
+          "detail": "Deploy to staging environment"
+        }
+      }
+    },
+    {
+      "label": "Deploy Production",
+      "type": "shell",
+      "command": "npm run deploy:prod",
+      "options": {
+        "statusbar": {
+          "group": "Deploy.Environments",
+          "detail": "Deploy to production (requires approval)"
+        }
+      }
+    },
+    {
+      "label": "Deploy Rollback",
+      "type": "shell",
+      "command": "npm run deploy:rollback",
+      "options": {
+        "statusbar": {
+          "group": "Deploy.Ops",
+          "detail": "Roll back to previous deployment"
+        }
+      }
+    },
+    {
+      "label": "Dev Server",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "options": {
+        "statusbar": {
+          "label": "$(play) Dev",
+          "color": "#50FA7B",
+          "detail": "Start local development server",
+          "running": {
+            "label": "$(sync~spin) Dev",
+            "color": "#F1FA8C"
+          }
+        }
+      }
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": {
+        "statusbar": {
+          "label": "$(checklist) Lint",
+          "color": "#F5A623",
+          "detail": "Run ESLint on entire project"
+        }
+      }
+    },
+    {
+      "label": "Format",
+      "type": "shell",
+      "command": "npm run format",
+      "options": {
+        "statusbar": {
+          "label": "$(edit) Format",
+          "color": "#BD93F9",
+          "detail": "Run Prettier on entire project"
+        }
+      }
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "npm run clean",
+      "options": {
+        "statusbar": {
+          "label": "$(trash) Clean",
+          "color": "#6272A4",
+          "detail": "Remove dist/, node_modules/.cache, coverage/"
+        }
+      }
+    },
+    {
+      "label": "DB Migrate",
+      "type": "shell",
+      "command": "npm run db:migrate",
+      "options": {
+        "statusbar": {
+          "group": {
+            "id": "DB",
+            "label": "DB",
+            "icon": "database",
+            "color": "#F1FA8C",
+            "priority": 2
+          },
+          "detail": "Run pending database migrations"
+        }
+      }
+    },
+    {
+      "label": "DB Seed",
+      "type": "shell",
+      "command": "npm run db:seed",
+      "options": {
+        "statusbar": {
+          "group": "DB",
+          "detail": "Seed database with sample data"
+        }
+      }
+    },
+    {
+      "label": "DB Reset",
+      "type": "shell",
+      "command": "npm run db:reset",
+      "options": {
+        "statusbar": {
+          "group": "DB",
+          "detail": "Drop all tables and re-migrate + seed"
+        }
+      }
+    }
+  ]
+}
+
+Status bar result (left to right):
+  [Build (4)] [Test (5)] [Deploy (3)] [DB (3)] [Dev] [Lint] [Format] [Clean]
+
+Clicking "Test" shows:
+  > Run all 5 tasks
+  --- Unit ---
+  Test Unit
+  Test Unit Watch
+  Test Coverage
+  --- Integration ---
+  Test Integration
+  --- E2E ---
+  Test E2E
+
+
+========================================================================
+[END OF INSTRUCTIONS]
+========================================================================

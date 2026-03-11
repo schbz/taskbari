@@ -1,0 +1,12 @@
+.vscode/**
+.github/**
+.cursor/**
+src/**
+node_modules/**
+tsconfig.json
+.gitignore
+agent-instruct.txt
+CHANGELOG.md
+**/*.ts
+**/*.map
+*.vsix

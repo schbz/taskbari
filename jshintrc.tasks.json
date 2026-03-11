@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "label": {
+      "type": "string",
+      "default": "label for statusbar",
+      "description": "Set the label of the statusbar.\nYou can embed icons in the text by leveraging the syntax:\nhttps://code.visualstudio.com/api/references/icons-in-labels\nAbout octicons:\nhttps://octicons.github.com"
+    },
+    "icon": {
+      "type": "object",
+      "default": {
+        "id": "play"
+      },
+      "description": "An optional icon for the task",
+      "properties": {
+        "id": {
+          "description": "An optional codicon ID to use",
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "color": {
+      "type": "string",
+      "default": "#FFF",
+      "format": "color",
+      "description": "Set the foreground color of the statusbar.\nhttps://code.visualstudio.com/api/references/theme-color"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "enum": [
+        "statusBarItem.errorBackground",
+        "statusBarItem.warningBackground"
+      ],
+      "markdownDescription": "Set the background color of the statusbar. Only the following colors are supported:\n* `statusBarItem.errorBackground`\n* `statusBarItem.warningBackground`"
+    },
+    "group": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Group ID. Tasks with the same group are collapsed into a single status bar button that opens a QuickPick."
+        },
+        {
+          "type": "object",
+          "description": "Detailed group configuration.",
+          "required": ["id"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Group identifier. Tasks sharing this id are grouped together."
+            },
+            "label": {
+              "type": "string",
+              "description": "Display label for the group button. Supports $(icon-name) syntax."
+            },
+            "icon": {
+              "type": "string",
+              "description": "Codicon ID for the group button, e.g. 'tools', 'beaker'."
+            },
+            "color": {
+              "type": "string",
+              "description": "Foreground color for the group button. Hex or theme color name.",
+              "format": "color"
+            },
+            "priority": {
+              "type": "number",
+              "default": 0,
+              "description": "Sort priority for the group button. Higher values appear first."
+            }
+          }
+        }
+      ]
+    },
+    "statusbar": {
+      "type": "object",
+      "description": "Set the task to display in the statusbar.",
+      "properties": {
+        "running": {
+          "type": "object",
+          "properties": {
+            "label": { "$ref": "#/definitions/label" },
+            "icon": { "$ref": "#/definitions/icon" },
+            "color": { "$ref": "#/definitions/color" },
+            "backgroundColor": { "$ref": "#/definitions/backgroundColor" }
+          }
+        },
+        "label": { "$ref": "#/definitions/label" },
+        "icon": { "$ref": "#/definitions/icon" },
+        "color": { "$ref": "#/definitions/color" },
+        "backgroundColor": { "$ref": "#/definitions/backgroundColor" },
+        "detail": {
+          "type": "string",
+          "default": "tooltip for statusbar",
+          "description": "Set the tooltip of the statusbar."
+        },
+        "hide": {
+          "type": "boolean",
+          "default": true,
+          "description": "Controls whether this task should be displayed in the statusbar."
+        },
+        "filePattern": {
+          "type": "string",
+          "default": "",
+          "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
+        },
+        "group": {
+          "$ref": "#/definitions/group"
+        }
+      }
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "statusbar": {
+          "$ref": "#/definitions/statusbar"
+        }
+      }
+    },
+    "tasks": {
+      "type": "object",
+      "properties": {
+        "windows": {
+          "type": "object",
+          "properties": {
+            "options": { "$ref": "#/definitions/options" }
+          }
+        },
+        "linux": {
+          "type": "object",
+          "properties": {
+            "options": { "$ref": "#/definitions/options" }
+          }
+        },
+        "osx": {
+          "type": "object",
+          "properties": {
+            "options": { "$ref": "#/definitions/options" }
+          }
+        },
+        "options": { "$ref": "#/definitions/options" },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "windows": {
+                "type": "object",
+                "properties": {
+                  "options": { "$ref": "#/definitions/options" }
+                }
+              },
+              "linux": {
+                "type": "object",
+                "properties": {
+                  "options": { "$ref": "#/definitions/options" }
+                }
+              },
+              "osx": {
+                "type": "object",
+                "properties": {
+                  "options": { "$ref": "#/definitions/options" }
+                }
+              },
+              "options": { "$ref": "#/definitions/options" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$ref": "#/definitions/tasks"
+}

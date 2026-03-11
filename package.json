@@ -1,0 +1,112 @@
+{
+  "name": "taskbari",
+  "displayName": "TaskBari",
+  "description": "Load VSCode Tasks into Status Bar with category grouping support.",
+  "version": "1.0.0",
+  "publisher": "taskbari",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/schbz/taskbari"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "task",
+    "statusbar",
+    "groups",
+    "categories"
+  ],
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Tasks are disabled in Restricted Mode."
+    }
+  },
+  "main": "./out/extension.js",
+  "contributes": {
+    "jsonValidation": [
+      {
+        "fileMatch": "tasks.json",
+        "url": "./jshintrc.tasks.json"
+      },
+      {
+        "fileMatch": "*.code-workspace",
+        "url": "./jshintrc.code-workspace.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "taskbari.run-task",
+        "title": "TaskBari: Run Task"
+      },
+      {
+        "command": "taskbari.select-task",
+        "title": "TaskBari: Select Task"
+      },
+      {
+        "command": "taskbari.select-group-task",
+        "title": "TaskBari: Select Group Task"
+      },
+      {
+        "command": "taskbari.run-all-in-group",
+        "title": "TaskBari: Run All Tasks in Group"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "tasks.statusbar.default.hide": {
+          "type": "boolean",
+          "default": false
+        },
+        "tasks.statusbar.default.color": {
+          "type": "string",
+          "default": ""
+        },
+        "tasks.statusbar.limit": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "tasks.statusbar.select.label": {
+          "type": "string",
+          "default": "..."
+        },
+        "tasks.statusbar.select.color": {
+          "type": "string",
+          "default": ""
+        },
+        "tasks.statusbar.groups.showTaskCount": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the number of tasks in a group on the status bar button, e.g. $(tools) Build (3)."
+        },
+        "tasks.statusbar.groups.sortAlphabetically": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sort tasks alphabetically inside group QuickPick menus."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "deploy": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "@types/vscode": "^1.75.0",
+    "@vscode/vsce": "^3.2.0",
+    "typescript": "^5.4.0"
+  }
+}

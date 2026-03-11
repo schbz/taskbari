@@ -1,0 +1,153 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "compile",
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "type": "npm",
+      "script": "watch",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": ["$tsc-watch"]
+    },
+    {
+      "label": "Lint All",
+      "type": "shell",
+      "command": "echo Linting all files...",
+      "options": {
+        "statusbar": {
+          "label": "$(checklist) Lint All",
+          "color": "#F5A623"
+        }
+      }
+    },
+    {
+      "label": "Format Code",
+      "type": "shell",
+      "command": "echo Formatting code...",
+      "options": {
+        "statusbar": {
+          "label": "$(edit) Format",
+          "color": "#BD93F9"
+        }
+      }
+    },
+    {
+      "label": "Test Unit",
+      "type": "shell",
+      "command": "echo Running unit tests...",
+      "options": {
+        "statusbar": {
+          "group": {
+            "id": "Test.Unit",
+            "label": "Test",
+            "icon": "beaker",
+            "color": "#50FA7B",
+            "priority": 5
+          }
+        }
+      }
+    },
+    {
+      "label": "Test Integration",
+      "type": "shell",
+      "command": "echo Running integration tests...",
+      "options": {
+        "statusbar": {
+          "group": "Test.Unit"
+        }
+      }
+    },
+    {
+      "label": "Test Coverage",
+      "type": "shell",
+      "command": "echo Generating coverage report...",
+      "options": {
+        "statusbar": {
+          "group": "Test.Unit"
+        }
+      }
+    },
+    {
+      "label": "Test E2E",
+      "type": "shell",
+      "command": "echo Running E2E tests...",
+      "options": {
+        "statusbar": {
+          "group": "Test.E2E"
+        }
+      }
+    },
+    {
+      "label": "Test Watch",
+      "type": "shell",
+      "command": "echo Running tests in watch mode...",
+      "options": {
+        "statusbar": {
+          "group": "Test.E2E"
+        }
+      }
+    },
+    {
+      "label": "Test Snapshot Update",
+      "type": "shell",
+      "command": "echo Updating snapshots...",
+      "options": {
+        "statusbar": {
+          "group": "Test.E2E"
+        }
+      }
+    },
+    {
+      "label": "Deploy Staging",
+      "type": "shell",
+      "command": "echo Deploying to staging...",
+      "options": {
+        "statusbar": {
+          "group": {
+            "id": "Deploy.Environments",
+            "label": "Deploy",
+            "icon": "cloud-upload",
+            "color": "#FF5555",
+            "priority": 3
+          }
+        }
+      }
+    },
+    {
+      "label": "Deploy Production",
+      "type": "shell",
+      "command": "echo Deploying to production...",
+      "options": {
+        "statusbar": {
+          "group": "Deploy.Environments"
+        }
+      }
+    },
+    {
+      "label": "Deploy Rollback",
+      "type": "shell",
+      "command": "echo Rolling back deployment...",
+      "options": {
+        "statusbar": {
+          "group": "Deploy.Ops"
+        }
+      }
+    },
+    {
+      "label": "Clean Build",
+      "type": "shell",
+      "command": "echo Cleaning build artifacts...",
+      "options": {
+        "statusbar": {
+          "label": "$(trash) Clean",
+          "color": "#8BE9FD"
+        }
+      }
+    }
+  ]
+}
