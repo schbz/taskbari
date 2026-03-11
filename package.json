@@ -2,8 +2,10 @@
   "name": "taskbari",
   "displayName": "TaskBari",
   "description": "Load VSCode Tasks into Status Bar with category grouping support.",
-  "version": "1.0.0",
-  "publisher": "taskbari",
+  "icon": "images/taskbari-icon.png",
+  "version": "1.0.1",
+  "license": "MIT",
+  "publisher": "SkySloane",
   "repository": {
     "type": "git",
     "url": "https://github.com/schbz/taskbari"

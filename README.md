@@ -1,6 +1,8 @@
 # TaskBari
 
- VS Code extension that loads workspace tasks into the status bar — with **category grouping** support.
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/SkySloane.taskbari?label=Marketplace&color=blue)](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari)
+
+VS Code extension that loads workspace tasks into the status bar — with **category grouping** support.
 
 Inspired by earlier task-button status bar extensions, TaskBari goes further by letting you collapse related tasks into group buttons. Clicking a group opens a QuickPick menu listing all tasks in that category, saving valuable status bar space.
 
@@ -11,6 +13,14 @@ Inspired by earlier task-button status bar extensions, TaskBari goes further by 
 - **QuickPick submenus** that appear when you click a group button
 - Configurable group labels, icons, colors, and sort priority
 - Full backward compatibility with existing `tasks.json` configurations
+
+## Install
+
+Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari), or in VS Code/Cursor press `Ctrl+P` and run:
+
+```
+ext install SkySloane.taskbari
+```
 
 ## Quick Start
 
