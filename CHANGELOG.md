@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- "Run all" in group QuickPick is now opt-in via `runAll: true` in the group object config (defaults to `false`)
+- **Breaking:** "Run all" no longer appears by default; add `"runAll": true` to your group object to restore it
+- Added `runAll` property to `GroupConfig` and JSON schema
+
 ## 1.0.1
 
 - Added extension icon

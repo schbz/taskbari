@@ -65,6 +65,11 @@
               "type": "number",
               "default": 0,
               "description": "Sort priority for the group button. Higher values appear first."
+            },
+            "runAll": {
+              "type": "boolean",
+              "default": false,
+              "description": "Show a 'Run all' option at the top of this group's QuickPick menu."
             }
           }
         }

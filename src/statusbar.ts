@@ -170,7 +170,7 @@ function buildMemoryEntries(
   const entries: MemoryStatusBarEntry[] = [];
   const groupOverrides = new Map<
     string,
-    { label?: string; icon?: string; color?: string; priority?: number }
+    { label?: string; icon?: string; color?: string; priority?: number; runAll?: boolean }
   >();
 
   for (const { taskObject, taskInfo } of matchedPairs) {
@@ -202,12 +202,13 @@ function buildMemoryEntries(
     const groupId = groupCfg?.id;
 
     if (groupCfg && !groupOverrides.has(groupCfg.id)) {
-      if (groupCfg.label || groupCfg.icon || groupCfg.color || groupCfg.priority !== undefined) {
+      if (groupCfg.label || groupCfg.icon || groupCfg.color || groupCfg.priority !== undefined || groupCfg.runAll !== undefined) {
         groupOverrides.set(groupCfg.id, {
           label: groupCfg.label,
           icon: groupCfg.icon,
           color: groupCfg.color,
           priority: groupCfg.priority,
+          runAll: groupCfg.runAll,
         });
       }
     }

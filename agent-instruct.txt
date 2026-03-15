@@ -39,9 +39,11 @@ Core capabilities:
      When any task in a group is running, the group button shows an
      animated spinner icon and a running/total count, e.g. (2/6).
 
-  5. RUN ALL IN GROUP
-     Every group QuickPick has a "Run all N tasks" option at the top
-     that executes every task in the group in parallel.
+  5. RUN ALL IN GROUP (opt-in)
+     Groups with "runAll": true in their group object config show a
+     "Run all N tasks" option at the top of the QuickPick that
+     executes every task in the group in parallel. Groups without
+     runAll (or with it set to false) do not show this option.
 
   6. OVERFLOW HANDLING
      The tasks.statusbar.limit setting caps visible buttons. Overflow
@@ -84,6 +86,11 @@ The only addition is the optional group property.
   group           string    Group id. All tasks sharing this id collapse
                   OR        into one button. Supports dot-notation for
                   object    sub-sections (see [GROUP CONFIGURATION]).
+                            Object form accepts: id, label, icon, color,
+                            priority, runAll.
+
+  group.runAll    boolean   If true, show "Run all N tasks" at the top of
+                            the group QuickPick. Default: false.
 
   running         object    Override label/icon/color/backgroundColor
                             when the task is currently executing.
@@ -162,7 +169,8 @@ The only addition is the optional group property.
         "label": "Test",
         "icon": "beaker",
         "color": "#50FA7B",
-        "priority": 5
+        "priority": 5,
+        "runAll": true
       }
     }
   }
@@ -247,7 +255,17 @@ The only addition is the optional group property.
    Ungrouped buttons appear to the right of all groups.
    Suggested scale: 10 = critical, 5 = frequent, 1 = rare.
 
-5. TASK COUNT BADGE
+5. RUN ALL (opt-in)
+   By default, groups do NOT show a "Run all" option in the QuickPick.
+   To enable it, set "runAll": true in the group object form:
+     "group": { "id": "Build", "runAll": true }
+   This follows first-writer-wins: only the first task defining the
+   group object needs to set it. Use runAll for groups where running
+   every task in parallel is a common workflow (e.g. Build, Test).
+   Avoid enabling it for groups where parallel execution is dangerous
+   (e.g. Deploy, DB).
+
+6. TASK COUNT BADGE
    Group buttons show (N) by default, e.g. "Build (3)".
    When tasks are running: "Build (1/3)" with a spinner icon.
    Disable with tasks.statusbar.groups.showTaskCount: false.
@@ -424,7 +442,8 @@ Example migration:
           "label": "Build",
           "icon": "tools",
           "color": "#8BE9FD",
-          "priority": 8
+          "priority": 8,
+          "runAll": true
         }
       }
     }
@@ -491,6 +510,9 @@ DO:
     for certain file types (e.g. test runner only when a test file
     is active).
   - Set "priority" so the most-used groups are leftmost on the bar.
+  - Set "runAll": true on groups where running all tasks at once is a
+    common workflow (Build, Test). Omit it for dangerous parallel
+    execution (Deploy, DB).
 
 DO NOT:
   - Do not exceed 6-7 top-level items (groups + ungrouped buttons).
@@ -530,7 +552,8 @@ frontend, backend, testing, deployment, and utility tasks.
             "label": "Build",
             "icon": "tools",
             "color": "#8BE9FD",
-            "priority": 8
+            "priority": 8,
+            "runAll": true
           }
         }
       }
@@ -577,7 +600,8 @@ frontend, backend, testing, deployment, and utility tasks.
             "label": "Test",
             "icon": "beaker",
             "color": "#50FA7B",
-            "priority": 6
+            "priority": 6,
+            "runAll": true
           }
         }
       }
@@ -763,7 +787,7 @@ frontend, backend, testing, deployment, and utility tasks.
 Status bar result (left to right):
   [Build (4)] [Test (5)] [Deploy (3)] [DB (3)] [Dev] [Lint] [Format] [Clean]
 
-Clicking "Test" shows:
+Clicking "Test" shows (runAll is true):
   > Run all 5 tasks
   --- Unit ---
   Test Unit
@@ -773,6 +797,13 @@ Clicking "Test" shows:
   Test Integration
   --- E2E ---
   Test E2E
+
+Clicking "Deploy" shows (runAll is false/absent):
+  --- Environments ---
+  Deploy Staging
+  Deploy Production
+  --- Ops ---
+  Deploy Rollback
 
 
 ========================================================================

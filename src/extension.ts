@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext): void {
       RunAllInGroupCommand,
       (groupId: string) => {
         const group = getCurrentGroups().get(groupId);
-        if (!group) return;
+        if (!group || !group.runAll) return;
         for (const entry of group.tasks) {
           const cmd = entry.command as vscode.Command;
           const task = cmd.arguments?.[0] as vscode.Task | undefined;

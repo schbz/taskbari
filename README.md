@@ -11,6 +11,7 @@ Inspired by earlier task-button status bar extensions, TaskBari goes further by 
 - **Individual task buttons** on the status bar like other extensions which inspired this one
 - **Group buttons** that collapse multiple related tasks into a single status bar button
 - **QuickPick submenus** that appear when you click a group button
+- **Opt-in "Run all"** option in group QuickPick menus (enabled per group with `runAll: true`)
 - Configurable group labels, icons, colors, and sort priority
 - Full backward compatibility with existing `tasks.json` configurations
 
@@ -77,20 +78,22 @@ For more control, use an object instead of a string:
         "label": "Build",
         "icon": "tools",
         "color": "#22C1D6",
-        "priority": 10
+        "priority": 10,
+        "runAll": true
       }
     }
   }
 }
 ```
 
-| Property   | Type   | Description |
-|------------|--------|-------------|
-| `id`       | string | **Required.** Group identifier — tasks with the same id are grouped together. |
-| `label`    | string | Display label for the group button. Defaults to the `id`. |
-| `icon`     | string | Codicon ID (e.g. `tools`, `beaker`, `cloud-upload`). Rendered as `$(icon)` prefix. |
-| `color`    | string | Foreground color — hex value or theme color name. |
-| `priority` | number | Sort order for groups. Higher values appear first. Default: `0`. |
+| Property   | Type    | Description |
+|------------|---------|-------------|
+| `id`       | string  | **Required.** Group identifier — tasks with the same id are grouped together. |
+| `label`    | string  | Display label for the group button. Defaults to the `id`. |
+| `icon`     | string  | Codicon ID (e.g. `tools`, `beaker`, `cloud-upload`). Rendered as `$(icon)` prefix. |
+| `color`    | string  | Foreground color — hex value or theme color name. |
+| `priority` | number  | Sort order for groups. Higher values appear first. Default: `0`. |
+| `runAll`   | boolean | Show a "Run all" option at the top of the group's QuickPick menu. Default: `false`. |
 
 Only the **first task** in a group that specifies these properties "wins" — subsequent tasks in the same group only need `"group": "Build"`.
 

@@ -52,6 +52,7 @@ export interface GroupConfig {
   icon?: string;
   color?: string;
   priority?: number;
+  runAll?: boolean;
 }
 
 /** Resolved group info, accumulated from all tasks sharing the same group id */
@@ -61,6 +62,7 @@ export interface ResolvedGroup {
   icon?: string;
   color?: string;
   priority: number;
+  runAll?: boolean;
   tasks: MemoryStatusBarEntry[];
 }
 

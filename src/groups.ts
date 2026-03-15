@@ -66,7 +66,7 @@ export function applyGroupOverrides(
   groups: Map<string, ResolvedGroup>,
   overrides: Map<
     string,
-    { label?: string; icon?: string; color?: string; priority?: number }
+    { label?: string; icon?: string; color?: string; priority?: number; runAll?: boolean }
   >
 ): void {
   for (const [rawId, cfg] of overrides) {
@@ -77,6 +77,7 @@ export function applyGroupOverrides(
     if (cfg.icon && !group.icon) group.icon = cfg.icon;
     if (cfg.color && !group.color) group.color = cfg.color;
     if (cfg.priority !== undefined && group.priority === 0) group.priority = cfg.priority;
+    if (cfg.runAll !== undefined && group.runAll === undefined) group.runAll = cfg.runAll;
   }
 }
 
@@ -206,12 +207,13 @@ export function showGroupQuickPick(
 
   const items: GroupQuickPickItem[] = [];
 
-  // "Run all" item at the top
-  items.push({
-    label: `$(run-all) Run all ${tasks.length} tasks`,
-    description: `in ${group.id}`,
-    isRunAll: true,
-  });
+  if (group.runAll) {
+    items.push({
+      label: `$(run-all) Run all ${tasks.length} tasks`,
+      description: `in ${group.id}`,
+      isRunAll: true,
+    });
+  }
 
   // Organize by sub-section
   const sections = organizeBySubSection(tasks);

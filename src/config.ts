@@ -211,7 +211,7 @@ export function computeTaskInfo(
  */
 export function getGroupConfig(
   taskInfo: Record<string, unknown>
-): { id: string; label?: string; icon?: string; color?: string; priority?: number } | undefined {
+): { id: string; label?: string; icon?: string; color?: string; priority?: number; runAll?: boolean } | undefined {
   const opts = taskInfo.options as Record<string, unknown> | undefined;
   if (!isObject(opts)) return undefined;
   const sb = opts.statusbar as StatusbarOptions | undefined;
@@ -227,6 +227,7 @@ export function getGroupConfig(
       icon: sb.group.icon as string | undefined,
       color: sb.group.color as string | undefined,
       priority: sb.group.priority as number | undefined,
+      runAll: sb.group.runAll as boolean | undefined,
     };
   }
   return undefined;
