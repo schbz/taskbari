@@ -1,6 +1,7 @@
 # TaskBari
 
 [![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/SkySloane.taskbari?label=Marketplace&color=blue)](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari)
+[![Open VSX](https://img.shields.io/open-vsx/v/SkySloane/taskbari?label=Open%20VSX&color=purple)](https://open-vsx.org/extension/SkySloane/taskbari)
 
 VS Code extension that loads workspace tasks into the status bar — with **category grouping** support.
 
@@ -17,11 +18,15 @@ Inspired by earlier task-button status bar extensions, TaskBari goes further by 
 
 ## Install
 
-Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari), or in VS Code/Cursor press `Ctrl+P` and run:
+Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari) or the [Open VSX Registry](https://open-vsx.org/extension/SkySloane/taskbari).
+
+In VS Code press `Ctrl+P` and run:
 
 ```
 ext install SkySloane.taskbari
 ```
+
+Editors that use Open VSX (such as Cursor, VSCodium, and Gitpod) can install directly from their built-in extension panel by searching for **TaskBari**.
 
 ## Quick Start
 
@@ -61,6 +66,14 @@ Add tasks to your `.vscode/tasks.json` as usual. To group tasks, add a `group` p
 ```
 
 This creates **two** status bar items instead of three: a "Build (2)" group button and a "Lint" individual button. Clicking "Build (2)" opens a QuickPick with "Build Debug" and "Build Release".
+
+**Tip — let your coding agents do the setup:** Paste the following link into your agent prompt and ask it to create or optimize your `tasks.json` for TaskBari:
+
+```
+https://raw.githubusercontent.com/schbz/taskbari/refs/heads/master/agent-instruct.txt
+```
+
+The file contains configuration references, group rules, recommended category taxonomies for different project types, and a full working example.
 
 ## Group Configuration
 
@@ -131,10 +144,8 @@ This repo includes an `agent-instruct.txt` file that teaches AI coding agents (C
 
 **How to use it:**
 
-1. Copy `agent-instruct.txt` into your project, or reference it directly from this repo.
+1. Copy `agent-instruct.txt` into your project, or reference it directly [https://raw.githubusercontent.com/schbz/taskbari/refs/heads/master/agent-instruct.txt](https://raw.githubusercontent.com/schbz/taskbari/refs/heads/master/agent-instruct.txt).
 2. In your AI agent's chat, mention the file to give it context:
-   - **Cursor:** Type `@agent-instruct.txt` in the chat prompt, then ask it to set up or improve your tasks.
-   - **Other agents:** Paste the file contents or point the agent to it, then ask your question.
 3. Example prompts:
    - *"@agent-instruct.txt Please set up a tasks.json for this Node.js project with build, test, and deploy groups."*
    - *"@agent-instruct.txt Migrate my existing tasks.json to use TaskBari groups."*
