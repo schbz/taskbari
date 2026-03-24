@@ -31,11 +31,11 @@ jobs:
           path: taskbari.vsix
 
       - name: Publish to Open VSX
-        run: npx ovsx publish taskbari.vsix
+        run: npx ovsx publish taskbari.vsix --skip-duplicate
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
       - name: Publish to VS Code Marketplace
-        run: npx vsce publish --packagePath taskbari.vsix
+        run: npx vsce publish --packagePath taskbari.vsix --skip-duplicate
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1
+
+- Added missing `description` fields to five configuration settings so they appear in the Settings UI
+- Individual (ungrouped) task buttons now show a default tooltip with the task name
+- Added `--skip-duplicate` to CI publish steps for idempotent releases
+- Expanded `keywords` in `package.json` for better marketplace discoverability
+
 ## 1.1.0
 
 - "Run all" in group QuickPick is now opt-in via `runAll: true` in the group object config (defaults to `false`)

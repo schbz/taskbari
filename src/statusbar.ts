@@ -215,7 +215,7 @@ function buildMemoryEntries(
 
     entries.push({
       text: label ?? taskObject.name,
-      tooltip: convertTooltip(detail),
+      tooltip: convertTooltip(detail) ?? convertTooltip(taskObject.name),
       color: convertColor(color),
       backgroundColor: backgroundColor
         ? new vscode.ThemeColor(backgroundColor)

@@ -3,7 +3,7 @@
   "displayName": "TaskBari",
   "description": "Load VSCode Tasks into Status Bar with category grouping support.",
   "icon": "images/taskbari-icon.png",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "publisher": "SkySloane",
   "repository": {
@@ -17,7 +17,11 @@
     "task",
     "statusbar",
     "groups",
-    "categories"
+    "categories",
+    "toolbar",
+    "status bar",
+    "quickpick",
+    "workspace"
   ],
   "engines": {
     "vscode": "^1.75.0"
@@ -65,26 +69,31 @@
       "properties": {
         "tasks.statusbar.default.hide": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Hide all task buttons from the status bar by default."
         },
         "tasks.statusbar.default.color": {
           "type": "string",
-          "default": ""
+          "default": "",
+          "description": "Default foreground color for status bar task buttons (hex or ThemeColor)."
         },
         "tasks.statusbar.limit": {
           "type": [
             "integer",
             "null"
           ],
-          "default": null
+          "default": null,
+          "description": "Maximum number of task buttons visible on the status bar. Overflow tasks move to the picker."
         },
         "tasks.statusbar.select.label": {
           "type": "string",
-          "default": "..."
+          "default": "...",
+          "description": "Label for the overflow picker button when the task limit is exceeded."
         },
         "tasks.statusbar.select.color": {
           "type": "string",
-          "default": ""
+          "default": "",
+          "description": "Foreground color for the overflow picker button (hex or ThemeColor)."
         },
         "tasks.statusbar.groups.showTaskCount": {
           "type": "boolean",
