@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -21,15 +22,20 @@ jobs:
       - run: npm run compile
 
       - name: Package extension
-        run: npx vsce package
+        run: npx vsce package --out taskbari.vsix
 
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@v4
         with:
           name: taskbari-vsix
-          path: "*.vsix"
+          path: taskbari.vsix
+
+      - name: Publish to Open VSX
+        run: npx ovsx publish taskbari.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
       - name: Publish to VS Code Marketplace
-        run: npx vsce publish
+        run: npx vsce publish --packagePath taskbari.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}

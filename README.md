@@ -161,6 +161,19 @@ npm run compile
 # Press F5 in VS Code to launch Extension Development Host
 ```
 
+## Releasing
+
+Publishing runs in GitHub Actions when you push a **version tag** matching `v*` (for example `v1.2.0` after setting `"version": "1.2.0"` in `package.json`). The workflow packages once (`taskbari.vsix`) and publishes that same file to [Open VSX](https://open-vsx.org/extension/SkySloane/taskbari) and the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari).
+
+You can also run the **Publish Extension** workflow manually from the Actions tab (`workflow_dispatch`). Use that only when the `package.json` version is not already published on both registries.
+
+Configure these [repository secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions):
+
+| Secret | Purpose |
+|--------|---------|
+| `VSCE_PAT` | [Azure DevOps PAT](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token) with **Marketplace (Manage)** scope for the VS Code Marketplace |
+| `OVSX_PAT` | Personal access token from [open-vsx.org user settings](https://open-vsx.org/user-settings/tokens) for publishing to Open VSX ([publishing guide](https://github.com/eclipse/openvsx/wiki/Publishing-Extensions)) |
+
 ## Credits
 
 Inspired by the ecosystem of VS Code task-button extensions that came before it.
