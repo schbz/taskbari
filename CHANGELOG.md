@@ -1,7 +1,8 @@
 # Changelog
 
-## 1.1.1
+## 1.1.2
 
+- Fixed CI: upgraded Node from 18 to 20 (required by `undici` / `@vscode/vsce`)
 - Added missing `description` fields to five configuration settings so they appear in the Settings UI
 - Individual (ungrouped) task buttons now show a default tooltip with the task name
 - Added `--skip-duplicate` to CI publish steps for idempotent releases
