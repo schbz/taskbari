@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.1
 
 - Distribution is now Open VSX only. Removed the VS Code Marketplace badge, install instructions, and publish step; its Azure DevOps PAT expires yearly and the rotation was not worth the upkeep.
 - README documents installing the packaged `taskbari.vsix` manually for editors that do not use Open VSX
