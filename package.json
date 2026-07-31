@@ -112,7 +112,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
-    "deploy": "vsce publish"
+    "deploy": "npx vsce package --out taskbari.vsix && npx ovsx publish taskbari.vsix --skip-duplicate"
   },
   "devDependencies": {
     "@types/node": "^25.4.0",

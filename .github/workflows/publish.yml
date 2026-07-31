@@ -30,12 +30,11 @@ jobs:
           name: taskbari-vsix
           path: taskbari.vsix
 
+      # VS Code Marketplace publishing is intentionally omitted: its Azure DevOps
+      # PATs expire yearly. To restore it, add a step running
+      #   npx vsce publish --packagePath taskbari.vsix --skip-duplicate
+      # with a VSCE_PAT secret.
       - name: Publish to Open VSX
         run: npx ovsx publish taskbari.vsix --skip-duplicate
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
-
-      - name: Publish to VS Code Marketplace
-        run: npx vsce publish --packagePath taskbari.vsix --skip-duplicate
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}

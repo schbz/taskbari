@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Distribution is now Open VSX only. Removed the VS Code Marketplace badge, install instructions, and publish step; its Azure DevOps PAT expires yearly and the rotation was not worth the upkeep.
+- README documents installing the packaged `taskbari.vsix` manually for editors that do not use Open VSX
+- `npm run deploy` now packages and publishes to Open VSX, matching what CI does
+
 ## 1.2.0
 
 - **Unified button ordering:** group buttons and single-click task buttons are now sorted on one shared priority scale. Previously every group was forced to the left of every individual task, so a single task could never be placed first or between groups.

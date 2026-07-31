@@ -1,6 +1,5 @@
 # TaskBari
 
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/SkySloane.taskbari?label=Marketplace&color=blue)](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari)
 [![Open VSX](https://img.shields.io/open-vsx/v/SkySloane/taskbari?label=Open%20VSX&color=purple)](https://open-vsx.org/extension/SkySloane/taskbari)
 
 VS Code extension that loads workspace tasks into the status bar — with **category grouping** support.
@@ -19,15 +18,17 @@ Inspired by earlier task-button status bar extensions, TaskBari goes further by 
 
 ## Install
 
-Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari) or the [Open VSX Registry](https://open-vsx.org/extension/SkySloane/taskbari).
+TaskBari is published to the [Open VSX Registry](https://open-vsx.org/extension/SkySloane/taskbari).
 
-In VS Code press `Ctrl+P` and run:
+Editors that use Open VSX — such as **Cursor**, **Windsurf**, **VSCodium**, and **Gitpod** — can install it directly from their built-in extension panel by searching for **TaskBari**.
 
+For editors that do not use Open VSX, download `taskbari.vsix` from the [latest release workflow run](https://github.com/schbz/taskbari/actions/workflows/publish.yml) and install it manually:
+
+```bash
+code --install-extension taskbari.vsix
 ```
-ext install SkySloane.taskbari
-```
 
-Editors that use Open VSX (such as Cursor, VSCodium, and Gitpod) can install directly from their built-in extension panel by searching for **TaskBari**.
+Or use **Extensions: Install from VSIX…** in the command palette.
 
 ## Quick Start
 
@@ -224,16 +225,17 @@ npm run compile
 
 ## Releasing
 
-Publishing runs in GitHub Actions when you push a **version tag** matching `v*` (for example `v1.2.0` after setting `"version": "1.2.0"` in `package.json`). The workflow packages once (`taskbari.vsix`) and publishes that same file to [Open VSX](https://open-vsx.org/extension/SkySloane/taskbari) and the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SkySloane.taskbari).
+Publishing runs in GitHub Actions when you push a **version tag** matching `v*` (for example `v1.2.0` after setting `"version": "1.2.0"` in `package.json`). The workflow packages `taskbari.vsix`, uploads it as a build artifact, and publishes it to [Open VSX](https://open-vsx.org/extension/SkySloane/taskbari).
 
-You can also run the **Publish Extension** workflow manually from the Actions tab (`workflow_dispatch`). Use that only when the `package.json` version is not already published on both registries.
+You can also run the **Publish Extension** workflow manually from the Actions tab (`workflow_dispatch`). Use that only when the `package.json` version is not already published.
 
-Configure these [repository secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions):
+Configure this [repository secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions):
 
 | Secret | Purpose |
 |--------|---------|
-| `VSCE_PAT` | [Azure DevOps PAT](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token) with **Marketplace (Manage)** scope for the VS Code Marketplace |
 | `OVSX_PAT` | Personal access token from [open-vsx.org user settings](https://open-vsx.org/user-settings/tokens) for publishing to Open VSX ([publishing guide](https://github.com/eclipse/openvsx/wiki/Publishing-Extensions)) |
+
+Publishing to the VS Code Marketplace is currently disabled — its Azure DevOps PATs expire yearly and the rotation was not worth the upkeep. To restore it, add back a `Publish to VS Code Marketplace` step running `npx vsce publish --packagePath taskbari.vsix --skip-duplicate` with a `VSCE_PAT` secret.
 
 ## Credits
 
