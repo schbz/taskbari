@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0
+
+- **Unified button ordering:** group buttons and single-click task buttons are now sorted on one shared priority scale. Previously every group was forced to the left of every individual task, so a single task could never be placed first or between groups.
+- Added `options.statusbar.priority` for individual tasks — higher values appear further left, using the same scale as the group `priority`
+- On a task that also sets `group`, `priority` orders that entry inside the group's QuickPick menu
+- Sort order: priority descending → groups before tasks on a tie → groups alphabetically by id → tasks in `tasks.json` order
+- **No migration needed.** A task without an explicit `priority` keeps its old position, after every group and every prioritized task, in `tasks.json` order — which is exactly the previous layout rule. Existing configurations render identically, including ones using negative group priorities.
+- Added `priority` to the `tasks.json` JSON schema for autocomplete and hover docs
+- Fixed CI: the workflow triggered on `main` but the repository's default branch is `master`, so it never ran
+- Synced `package-lock.json`, which was stale at `1.0.0`
+
 ## 1.1.2
 
 - Fixed CI: upgraded Node from 18 to 20 (required by `undici` / `@vscode/vsce`)

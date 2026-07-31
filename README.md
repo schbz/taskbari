@@ -13,6 +13,7 @@ Inspired by earlier task-button status bar extensions, TaskBari goes further by 
 - **Group buttons** that collapse multiple related tasks into a single status bar button
 - **QuickPick submenus** that appear when you click a group button
 - **Opt-in "Run all"** option in group QuickPick menus (enabled per group with `runAll: true`)
+- **Free button ordering** — groups and single-click tasks share one priority scale, so you can arrange them in any sequence
 - Configurable group labels, icons, colors, and sort priority
 - Full backward compatibility with existing `tasks.json` configurations
 
@@ -121,10 +122,70 @@ All standard status bar options are supported:
     "color": "#22C1D6",
     "detail": "Run unit tests",
     "hide": false,
-    "filePattern": "test_.*"
+    "filePattern": "test_.*",
+    "priority": 7
   }
 }
 ```
+
+| Property   | Type    | Description |
+|------------|---------|-------------|
+| `priority` | number  | Sort order for this button. Higher values appear further left. Shares one scale with group `priority` — see [Button Order](#button-order). |
+
+## Button Order
+
+Group buttons and single-click task buttons are sorted on a **single shared
+scale**, so you can arrange them in whatever sequence you like. Give a task a
+`priority` inside `options.statusbar` and it slots in among the groups:
+
+```json
+{
+  "label": "Dev Server",
+  "type": "shell",
+  "command": "npm run dev",
+  "options": {
+    "statusbar": {
+      "label": "$(play) Dev",
+      "priority": 7
+    }
+  }
+}
+```
+
+With groups at `Build: 8` and `Deploy: 3`, that produces:
+
+```
+[Build (2)] [$(play) Dev] [Deploy (3)] ...
+```
+
+Sorting rules, in order:
+
+1. **Priority, descending** — higher numbers sit further left.
+2. On a tie, **group buttons come before task buttons**.
+3. Two groups with equal priority sort **alphabetically by id**.
+4. Two tasks with equal priority keep their **`tasks.json` order**.
+
+### Tasks without a priority
+
+A task that does not set `priority` keeps the pre-1.2 position: **after every
+group and every prioritized task**, in `tasks.json` order. This is exactly the
+old layout rule, so **existing `tasks.json` files render identically after
+upgrading** — nothing to migrate. Add priorities only to the buttons you
+actually want to move.
+
+Mixing is fine. Given groups `Deploy: 6`, tasks `Dev: 10` and `Lint: 4`, and
+unprioritized `Clean` and `Format`:
+
+```
+[$(play) Dev] [Deploy (3)] [Lint] [Clean] [Format]
+```
+
+### Inside groups
+
+On a task that also sets `group`, `priority` orders that entry **within the
+group's QuickPick menu** instead (the task has no button of its own). Entries
+without a priority keep `tasks.json` order, after the prioritized ones. The
+`tasks.statusbar.groups.sortAlphabetically` setting still overrides this.
 
 ## Extension Settings
 

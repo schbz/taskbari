@@ -49,6 +49,12 @@ Core capabilities:
      The tasks.statusbar.limit setting caps visible buttons. Overflow
      tasks go into a "..." picker. Groups count as 1 toward the limit.
 
+  7. UNIFIED BUTTON ORDER
+     Group buttons and individual task buttons share ONE priority
+     scale. An individual task with options.statusbar.priority can be
+     placed before, between, or after group buttons. Tasks without a
+     priority fall after all groups, in tasks.json order.
+
 Backward compatibility: any tasks.json that worked with older
 task-button status bar extensions works unchanged with TaskBari.
 The only addition is the optional group property.
@@ -82,6 +88,15 @@ The only addition is the optional group property.
   filePattern     string    Regex pattern. Button only visible when the
                             active editor filename matches. Leave empty
                             or omit to always show.
+
+  priority        number    Sort order for this button. Higher values
+                            appear further LEFT. Shares one scale with
+                            group priority, so an individual task can be
+                            placed before/between/after group buttons.
+                            Omit it and the task falls after all groups
+                            (the pre-1.2 behavior). On a task that also
+                            sets "group", this orders the entry inside
+                            the group QuickPick instead.
 
   group           string    Group id. All tasks sharing this id collapse
                   OR        into one button. Supports dot-notation for
@@ -139,6 +154,22 @@ The only addition is the optional group property.
       "label": "$(checklist) Lint",
       "color": "#F5A623",
       "detail": "Run ESLint on entire project"
+    }
+  }
+}
+
+--- Ungrouped task placed among the group buttons ---
+
+{
+  "label": "Dev Server",
+  "type": "shell",
+  "command": "npm run dev",
+  "isBackground": true,
+  "options": {
+    "statusbar": {
+      "label": "$(play) Dev",
+      "color": "#50FA7B",
+      "priority": 7
     }
   }
 }
@@ -250,10 +281,41 @@ The only addition is the optional group property.
    Tasks with "group": "Test" (no dot) go into a "General" section.
 
 4. PRIORITY ORDERING
-   Groups with higher priority numbers appear further LEFT on the
-   status bar. Groups with equal priority sort alphabetically.
-   Ungrouped buttons appear to the right of all groups.
+   Group buttons and individual task buttons are sorted on ONE shared
+   scale. Higher priority numbers appear further LEFT.
    Suggested scale: 10 = critical, 5 = frequent, 1 = rare.
+
+   Sort rules, in order:
+     a. priority, descending
+     b. on a tie, group buttons before individual task buttons
+     c. two groups at equal priority: alphabetically by id
+     d. two tasks at equal priority: tasks.json order
+
+   An individual task sets its priority in options.statusbar.priority
+   (NOT in a group object -- it has no group):
+
+     {
+       "label": "Dev Server",
+       "type": "shell",
+       "command": "npm run dev",
+       "options": {
+         "statusbar": {
+           "label": "$(play) Dev",
+           "priority": 7
+         }
+       }
+     }
+
+   With Build at 8 and Deploy at 3 this renders:
+     [Build (2)] [Dev] [Deploy (3)]
+
+   Individual tasks with NO priority fall after every group and every
+   prioritized task, in tasks.json order. That is the pre-1.2 layout,
+   so existing tasks.json files are unaffected by the upgrade. Only add
+   priorities to buttons you actually want to move.
+
+   On a task that ALSO sets "group", priority orders that entry inside
+   the group QuickPick instead of on the status bar.
 
 5. RUN ALL (opt-in)
    By default, groups do NOT show a "Run all" option in the QuickPick.
@@ -277,6 +339,11 @@ The only addition is the optional group property.
 
 Adapt these to the workspace. Only create groups that have 2+ tasks.
 Tasks that are one-offs should remain ungrouped for direct access.
+
+Priority "--" below means the task is left unprioritized and trails the
+groups. Any of these ungrouped entries may instead be given an
+options.statusbar.priority on the same scale as the groups to place it
+among them (e.g. Dev Server at 7 sits between Build 8 and Test 6).
 
 --- Web application (frontend + backend) ---
 
@@ -509,7 +576,9 @@ DO:
   - Use "filePattern" for context-sensitive buttons that only matter
     for certain file types (e.g. test runner only when a test file
     is active).
-  - Set "priority" so the most-used groups are leftmost on the bar.
+  - Set "priority" so the most-used buttons are leftmost on the bar.
+    Give frequently-clicked single tasks (Dev Server, Lint) a priority
+    too, so they sit among the groups instead of trailing them.
   - Set "runAll": true on groups where running all tasks at once is a
     common workflow (Build, Test). Omit it for dangerous parallel
     execution (Deploy, DB).
@@ -699,6 +768,7 @@ frontend, backend, testing, deployment, and utility tasks.
           "label": "$(play) Dev",
           "color": "#50FA7B",
           "detail": "Start local development server",
+          "priority": 7,
           "running": {
             "label": "$(sync~spin) Dev",
             "color": "#F1FA8C"
@@ -785,7 +855,12 @@ frontend, backend, testing, deployment, and utility tasks.
 }
 
 Status bar result (left to right):
-  [Build (4)] [Test (5)] [Deploy (3)] [DB (3)] [Dev] [Lint] [Format] [Clean]
+  [Build (4)] [Dev] [Test (5)] [Deploy (3)] [DB (3)] [Lint] [Format] [Clean]
+
+  Group priorities are Build 8, Test 6, Deploy 3, DB 2. "Dev" is an
+  individual task with priority 7, so it lands between Build and Test.
+  Lint, Format and Clean set no priority, so they trail every group in
+  tasks.json order.
 
 Clicking "Test" shows (runAll is true):
   > Run all 5 tasks

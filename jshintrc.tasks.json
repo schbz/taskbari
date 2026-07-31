@@ -107,6 +107,10 @@
           "default": "",
           "description": "Set the active editor file pattern for which the statusbar is displayed.\nLeave blank to have always displayed."
         },
+        "priority": {
+          "type": "number",
+          "markdownDescription": "Sort priority for this button on the status bar. Higher values appear further LEFT.\n\nThis shares one ordering scale with the group `priority`, so a single-click task button can be placed before, between, or after group buttons.\n\nTasks without a priority keep the legacy position: after every group and every prioritized task, in `tasks.json` order.\n\nOn a task that also sets `group`, this orders the entry inside the group's QuickPick instead."
+        },
         "group": {
           "$ref": "#/definitions/group"
         }

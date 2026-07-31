@@ -116,7 +116,7 @@ export function buildGroupEntry(group: ResolvedGroup): MemoryStatusBarEntry {
   if (runningCount > 0) {
     tooltipParts.push(`\n\n$(sync~spin) ${runningCount} running`);
   }
-  const taskList = group.tasks
+  const taskList = sortTasksByPriority(group.tasks)
     .map((t) => `- ${t.isRunning ? "$(sync~spin) " : ""}${t.text}`)
     .join("\n");
   tooltipParts.push(`\n\n${taskList}`);
@@ -136,25 +136,87 @@ export function buildGroupEntry(group: ResolvedGroup): MemoryStatusBarEntry {
 }
 
 /**
+ * Sort priority used for an ungrouped task that does not declare one.
+ * Keeps the pre-1.2 layout: unprioritized single-task buttons sit after every
+ * group and every prioritized task, in tasks.json declaration order.
+ */
+const UNPRIORITIZED = Number.NEGATIVE_INFINITY;
+
+interface OrderSlot {
+  entry: MemoryStatusBarEntry;
+  priority: number;
+  isGroup: boolean;
+  /** Group id, used for the alphabetical tiebreak between groups */
+  id: string;
+  /** Declaration order, used for the stable tiebreak between tasks */
+  index: number;
+}
+
+/**
  * Merge ungrouped entries + one entry per group into a single ordered array.
- * Groups are sorted by priority (descending) then alphabetically by id.
- * Within the final array, group buttons come first, then ungrouped entries.
+ *
+ * Group buttons and single-task buttons share ONE ordering scale, so a task can
+ * be placed before, between, or after groups by giving it a priority. Sorting:
+ *   1. priority, descending
+ *   2. on a tie, group buttons before task buttons
+ *   3. group vs group: alphabetically by id
+ *   4. task vs task: tasks.json declaration order
+ *
+ * A task without an explicit priority is UNPRIORITIZED, which reproduces the
+ * previous "all groups first, then tasks" layout for existing configs.
  */
 export function mergeEntries(
   ungrouped: MemoryStatusBarEntry[],
   groups: Map<string, ResolvedGroup>
 ): MemoryStatusBarEntry[] {
-  const sorted = [...groups.values()].sort((a, b) => {
+  const slots: OrderSlot[] = [];
+  let index = 0;
+
+  for (const group of groups.values()) {
+    slots.push({
+      entry: buildGroupEntry(group),
+      priority: group.priority,
+      isGroup: true,
+      id: group.id,
+      index: index++,
+    });
+  }
+  for (const entry of ungrouped) {
+    slots.push({
+      entry,
+      priority: entry.priority ?? UNPRIORITIZED,
+      isGroup: false,
+      id: entry.text,
+      index: index++,
+    });
+  }
+
+  slots.sort((a, b) => {
     if (a.priority !== b.priority) return b.priority - a.priority;
-    return a.id.localeCompare(b.id);
+    if (a.isGroup !== b.isGroup) return a.isGroup ? -1 : 1;
+    if (a.isGroup) return a.id.localeCompare(b.id);
+    return a.index - b.index;
   });
 
-  const result: MemoryStatusBarEntry[] = [];
-  for (const group of sorted) {
-    result.push(buildGroupEntry(group));
-  }
-  result.push(...ungrouped);
-  return result;
+  return slots.map((s) => s.entry);
+}
+
+/**
+ * Order the tasks inside a group by their explicit `priority` (descending).
+ * Tasks without one keep declaration order, after the prioritized ones.
+ */
+export function sortTasksByPriority(
+  tasks: MemoryStatusBarEntry[]
+): MemoryStatusBarEntry[] {
+  return tasks
+    .map((entry, index) => ({ entry, index }))
+    .sort((a, b) => {
+      const pa = a.entry.priority ?? UNPRIORITIZED;
+      const pb = b.entry.priority ?? UNPRIORITIZED;
+      if (pa !== pb) return pb - pa;
+      return a.index - b.index;
+    })
+    .map((s) => s.entry);
 }
 
 // --- QuickPick handler ---
@@ -200,10 +262,9 @@ export function showGroupQuickPick(
     .getConfiguration("tasks.statusbar.groups")
     .get<boolean>("sortAlphabetically", false);
 
-  let tasks = [...group.tasks];
-  if (sortAlpha) {
-    tasks.sort((a, b) => a.text.localeCompare(b.text));
-  }
+  const tasks = sortAlpha
+    ? [...group.tasks].sort((a, b) => a.text.localeCompare(b.text))
+    : sortTasksByPriority(group.tasks);
 
   const items: GroupQuickPickItem[] = [];
 

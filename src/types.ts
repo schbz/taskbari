@@ -36,6 +36,15 @@ export interface StatusbarOptions {
   detail?: string;
   hide?: boolean;
   filePattern?: string;
+  /**
+   * Sort priority for this task's status bar button. Higher values appear
+   * further left. Shares one ordering scale with group `priority`, so a
+   * single-click task button can be placed before, between, or after group
+   * buttons. Tasks that omit it keep the legacy position: after every
+   * prioritized item, in tasks.json declaration order.
+   * On a grouped task this instead orders the entry inside the group QuickPick.
+   */
+  priority?: number;
   group?: string | GroupConfig;
   running?: {
     label?: string;
@@ -74,6 +83,8 @@ export interface MemoryStatusBarEntry {
   backgroundColor: vscode.ThemeColor | undefined;
   filePattern: string | undefined;
   command: string | vscode.Command;
+  /** Explicit sort priority from `options.statusbar.priority`; undefined when unset */
+  priority?: number;
   groupId?: string;
   /** Dot-separated sub-section within the group, e.g. "Unit" from group "Test.Unit" */
   subSection?: string;

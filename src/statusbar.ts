@@ -197,6 +197,11 @@ function buildMemoryEntries(
     const filePattern = getAttribute(taskObject, taskInfo, "filePattern") as
       | string
       | undefined;
+    const priorityValue = getAttribute(taskObject, taskInfo, "priority");
+    const priority =
+      typeof priorityValue === "number" && Number.isFinite(priorityValue)
+        ? priorityValue
+        : undefined;
 
     const groupCfg = getGroupConfig(taskInfo);
     const groupId = groupCfg?.id;
@@ -226,6 +231,7 @@ function buildMemoryEntries(
         command: RunTaskCommand,
         arguments: [taskObject],
       },
+      priority,
       groupId,
       isRunning,
     });
